@@ -7,7 +7,14 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    @hilite1 = params[:hilite1] # retrieve hilite status1
+    @hilite2 = params[:hilite2] # retrieve hilite status2
+    if @hilite2
+      order_by="release_date ASC"
+    elsif @hilite1
+      order_by="title ASC"
+    end
+    @movies = Movie.order(order_by)
   end
 
   def new
