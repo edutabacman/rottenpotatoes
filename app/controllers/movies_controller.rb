@@ -7,6 +7,7 @@ class MoviesController < ApplicationController
   end
 
   def index
+    # higlight columns according to where we come from
     @hilite1 = params[:hilite1] # retrieve hilite status1
     @hilite2 = params[:hilite2] # retrieve hilite status2
     if @hilite2
@@ -14,7 +15,10 @@ class MoviesController < ApplicationController
     elsif @hilite1
       order_by="title ASC"
     end
+    # order retrieved movies according to where we come from, too
     @movies = Movie.order(order_by)
+    # get the list of ratings to pass to the view, for filtering
+    @all_ratings = Movie.all_ratings
   end
 
   def new
