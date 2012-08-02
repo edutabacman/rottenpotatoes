@@ -7,18 +7,36 @@ class MoviesController < ApplicationController
   end
 
   def index
-    # higlight columns according to where we come from
-    @hilite1 = params[:hilite1] # retrieve hilite status1
-    @hilite2 = params[:hilite2] # retrieve hilite status2
-    if @hilite2
-      order_by="release_date ASC"
-    elsif @hilite1
-      order_by="title ASC"
+    # first update the session hash
+    # set higlight for columns according to where we come from
+    if (params[:hilite1] || params[:hilite2])
+      session[:hilite1] = params[:hilite1] # retrieve hilite status1
+      session[:hilite2] = params[:hilite2] # retrieve hilite status2
+    else  # coming from refresh
+      # get which boxes were checked, if any
+      session[:ratings] = []
+      if (params[:ratings])
+        session[:ratings] = params[:ratings].keys
+      end
     end
-    # order retrieved movies according to where we come from, too
-    @movies = Movie.order(order_by)
+    # now update instance variables to be used in the view
     # get the list of ratings to pass to the view, for filtering
     @all_ratings = Movie.all_ratings
+    # the values of session to pass on the view
+    @hilite1 = session[:hilite1]
+    @hilite2 = session[:hilite2]
+    @ratings = session[:ratings]
+    # decide on the order to use for the movies (if any)
+    if (@hilite1) 
+      order_by = "title ASC"
+    else
+      order_by = "release_date ASC"
+    end
+    # get the movies, order by criteria above, and only for the ratings in session
+    @movies = []
+    if (@ratings)
+      @movies = Movie.find(:all, :conditions => [ "rating IN (?)", @ratings], :order => order_by)
+    end
   end
 
   def new
